@@ -18,7 +18,7 @@ import { FixedPipe } from './fixed.pipe';
         <p>Please enter a valid amount</p>
      </template>
      <p *ngIf!= "isInvalid(baseAmount)">Exchange Rate 
-        <strong>{{get_ExchangeRate() | fixed:4}}</strong>
+        <strong>{{exchangeRate | fixed:4}}</strong>
      </p>   
   `,
   styles: [`
@@ -36,7 +36,6 @@ export class AppComponent {
   baseCurrency = 'USD';
   targetCurrency = 'GBP';
   baseAmount = 1;
-  exchangeRate = 0.70;
   
   constructor(private exchangeService: ExchangeService){
     this.exchangeService.errorHandler = error =>
@@ -45,12 +44,10 @@ export class AppComponent {
   };
   
   getTargetAmount() {
-    this.exchangeRate = this.exchangeService.getExchangeRate(this.baseCurrency, this.targetCurrency);
-    if (this.exchangeRate>0) {
-        console.info('baseAmount:', this.baseAmount);
-        console.info('exchangeRate:', this.exchangeRate);
+    const lexchangeRate = this.exchangeService.getExchangeRate(this.baseCurrency, this.targetCurrency);
+    if (lexchangeRate) {
         //this.exchangeRate = exchangeRate;
-        return (this.baseAmount * this.exchangeRate);
+        return (this.baseAmount * lexchangeRate);
     } else { 
       return this.baseAmount;
     }
@@ -65,14 +62,14 @@ export class AppComponent {
     return this.exchangeService.getExchangeRate(this.baseCurrency, this.targetCurrency);
   }
   
-  get_ExchangeRate()
+  get exchangeRate()
   {                
-    if (this.exchangeRate) {
-        return this.exchangeRate;
-    }
-    else { 
+    const lexchangeRate = this.exchangeService.getExchangeRate(this.baseCurrency, this.targetCurrency);
+    if (lexchangeRate)
+      return lexchangeRate;
+    else
       return 0.70;
-    }
+    
   }
 
   

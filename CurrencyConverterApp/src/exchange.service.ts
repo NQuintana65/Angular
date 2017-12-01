@@ -9,6 +9,7 @@ export class ExchangeService {
 
 
   USDXRates:FixerCurrencyModel;
+  XChangeRates: FixerCurrencyModel;
   supportedCurrencies=[];
   
   constructor(private http: Http){     
@@ -27,7 +28,6 @@ export class ExchangeService {
 
   getExchangeRate(baseCurrency: string, targetCurrency: string) {    
     var exchangeRate;
-    var XChangeRates: FixerCurrencyModel;
     
     if (baseCurrency === targetCurrency) {
         return 1;
@@ -37,16 +37,19 @@ export class ExchangeService {
         return this.USDXRates.rates[targetCurrency];
     }
     else if (!(baseCurrency === 'USD')) {
+        if (this.XChangeRates && this.XChangeRates.base === baseCurrency) {
+            return this.XChangeRates.rates[targetCurrency];
+        }
         this.http.get(`${this.RatesApiUrl}/latest?base=${baseCurrency}`)
             .toPromise()
             .then(response => { 
-                XChangeRates = response.json();
-                exchangeRate = XChangeRates.rates[targetCurrency];
+                this.XChangeRates = response.json();               
+                exchangeRate = this.XChangeRates.rates[targetCurrency];
                 console.info(exchangeRate);
                 return exchangeRate;
-            })
+             })
             .catch(this.errorHandler);
+        }
     }
        
-  }
 }
